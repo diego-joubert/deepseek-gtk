@@ -64,6 +64,33 @@ class DeepSeekClient(Gtk.Window):
 
         logging.info(f"User-Agent definido: {DEFAULT_USER_AGENT}")
 
+        self.webview.connect("load-failed", self._on_load_failed)
+
+    def _on_load_failed(
+        self,
+        webview: WebKit2.WebView,
+        load_event: WebKit2.LoadEvent,
+        failing_uri: str,
+        error: GLib.Error,
+    ) -> bool:
+        logging.error(f"Fallo al cargar {failing_uri}: {error.message}")
+
+        dialog = Gtk.MessageDialog(
+            parent=self,
+            flags=Gtk.DialogFlags.MODAL,
+            type=Gtk.MessageType.ERROR,
+            buttons=Gtk.ButtonsType.CLOSE,
+            message_format="Falla de Conexion",
+        )
+
+        dialog.format_secondary_text(
+            f"No fue posibe cargar DeepSeek.\n\nVerifique su conexion a Internet.\nDetalles: {error.message}\n\nIntentando reconectar en 10 segundos..."
+        )
+        dialog.run()
+        dialog.destroy()
+        GLib.timeout_add_seconds(10, self.webview.reload)
+        return True
+
 
 def main():
     DeepSeekClient()
