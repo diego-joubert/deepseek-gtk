@@ -43,7 +43,6 @@ class DeepSeekClient(Gtk.Window):
         self._init_webview()
         self.webview.load_uri(DEEPSEEK_URL)
         self.add(self.webview)
-        self.show_all()
 
     def _init_webview(self):
         data_manager = WebKit2.WebsiteDataManager(
@@ -135,12 +134,3 @@ class DeepSeekClient(Gtk.Window):
         dialog.destroy()
         GLib.timeout_add_seconds(10, self.webview.reload)
         return True
-
-
-def main():
-    DeepSeekClient()
-    Gtk.main()
-
-
-if __name__ == "__main__":
-    main()
