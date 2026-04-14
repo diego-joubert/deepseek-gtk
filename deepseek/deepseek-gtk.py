@@ -1,7 +1,6 @@
 """Logica de la aplicacion principal"""
 
 import logging
-from pathlib import Path
 from utils import get_app_data_path, setup_logging
 from constants import (
     WINDOW_TITLE,
@@ -15,7 +14,7 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("WebKit2", "4.1")
-from gi.repository import Gtk, Gdk, WebKit2, GLib  # noqa: E402
+from gi.repository import Gtk, WebKit2, GLib  # noqa: E402
 
 
 class DeepSeekClient(Gtk.Window):
@@ -65,6 +64,52 @@ class DeepSeekClient(Gtk.Window):
         logging.info(f"User-Agent definido: {DEFAULT_USER_AGENT}")
 
         self.webview.connect("load-failed", self._on_load_failed)
+
+        context.connect("download-started", self._on_download_started)
+
+    def _on_download_started(
+        self, context: WebKit2.WebContext, download: WebKit2.Download
+    ):
+        logging.info("Iniciando descarga...")
+        download.connect("decide-destination", self._on_download_decide_destination)
+        download.connect("finished", self._on_download_finished)
+        download.connect("failed", self._on_download_failed)
+
+    def _on_download_decide_destination(
+        self, download: WebKit2.Download, suggested_filename: str
+    ) -> bool:
+        logging.info(f"Solicitado destino para archivo: {suggested_filename}")
+        dialog = Gtk.FileChooserDialog(
+            title="Guardar archivo", parent=self, action=Gtk.FileChooserAction.SAVE
+        )
+        dialog.add_buttons(
+            Gtk.STOCK_CANCEL,
+            Gtk.ResponseType.CANCEL,
+            Gtk.STOCK_SAVE,
+            Gtk.ResponseType.ACCEPT,
+        )
+        if suggested_filename:
+            dialog.set_current_name(suggested_filename)
+        else:
+            dialog.set_current_name("deepseek_download")
+        downloads_dir = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DOWNLOAD)
+        if downloads_dir:
+            dialog.set_current_folder(downloads_dir)
+        response = dialog.run()
+        if response == Gtk.ResponseType.ACCEPT:
+            uri = dialog.get_uri()
+            logging.info(f"Destino definido: {uri}")
+            download.set_destination(uri)
+            dialog.destroy()
+            return True
+        dialog.destroy()
+        return False
+
+    def _on_download_finished(self, download: WebKit2.Download):
+        logging.info("Descarga concluida con exito.")
+
+    def _on_download_failed(self, download: WebKit2.Download, error: GLib.Error):
+        logging.warning(f"Descarga fallida: {error}")
 
     def _on_load_failed(
         self,
