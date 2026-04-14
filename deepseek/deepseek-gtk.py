@@ -1,0 +1,74 @@
+"""Logica de la aplicacion principal"""
+
+import logging
+from pathlib import Path
+from utils import get_app_data_path, setup_logging
+from constants import (
+    WINDOW_TITLE,
+    DEFAULT_WIDTH,
+    DEFAULT_HEIGHT,
+    DEEPSEEK_URL,
+    DEFAULT_USER_AGENT,
+)
+
+import gi
+
+gi.require_version("Gtk", "3.0")
+gi.require_version("WebKit2", "4.1")
+from gi.repository import Gtk, Gdk, WebKit2, GLib  # noqa: E402
+
+
+class DeepSeekClient(Gtk.Window):
+    def __init__(self):
+        super().__init__(title=WINDOW_TITLE)
+
+        self.set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+        self.set_position(Gtk.WindowPosition.CENTER)
+
+        self.base_path = get_app_data_path()
+        self.icon_path = self.base_path / "deepseek-icon.png"
+
+        # Configurar logging
+        setup_logging(self.base_path)
+
+        # Icono de la ventana
+        try:
+            if self.icon_path.exists():
+                self.set_icon_from_file(str(self.icon_path))
+            else:
+                self.set_icon_name("deepseek")
+        except Exception as e:
+            logging.warning(f"Error al definir el icono de la ventana: {e}")
+
+        # Inicializar componentes
+        self._init_webview()
+        self.webview.load_uri(DEEPSEEK_URL)
+        self.add(self.webview)
+        self.show_all()
+
+    def _init_webview(self):
+        data_manager = WebKit2.WebsiteDataManager(
+            base_data_directory=str(self.base_path),
+            base_cache_directory=str(self.base_path),
+        )
+
+        context = WebKit2.WebContext.new_with_website_data_manager(data_manager)
+        self.webview = WebKit2.WebView.new_with_context(context)
+
+        # Configurar ajustes
+
+        settings = self.webview.get_settings()
+        settings.set_enable_page_cache(True)
+        settings.set_enable_html5_local_storage(True)
+        settings.set_user_agent(DEFAULT_USER_AGENT)
+
+        logging.info(f"User-Agent definido: {DEFAULT_USER_AGENT}")
+
+
+def main():
+    DeepSeekClient()
+    Gtk.main()
+
+
+if __name__ == "__main__":
+    main()
