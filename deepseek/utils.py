@@ -4,7 +4,7 @@ import logging
 import sys
 from pathlib import Path
 from gi.repository import GLib
-from constants import APP_NAME
+from .constants import APP_NAME
 
 
 def get_app_data_path() -> Path:

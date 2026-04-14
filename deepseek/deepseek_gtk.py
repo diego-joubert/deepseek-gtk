@@ -1,8 +1,8 @@
 """Logica de la aplicacion principal"""
 
 import logging
-from utils import get_app_data_path, setup_logging
-from constants import (
+from .utils import get_app_data_path, setup_logging
+from .constants import (
     WINDOW_TITLE,
     DEFAULT_WIDTH,
     DEFAULT_HEIGHT,

@@ -1,7 +1,7 @@
 import logging
 from gi.repository import Gtk, GLib
-from deepseek_gtk import DeepSeekClient
-from constants import APP_NAME
+from .deepseek_gtk import DeepSeekClient
+from .constants import APP_NAME
 
 
 def main():
