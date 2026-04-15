@@ -1,4 +1,4 @@
-#1/bin/bash
+#!/bin/bash
 
 APP_NAME="deepseek-gtk"
 ICON_SOURCE="assets/deepseek-icon.png"
@@ -52,6 +52,15 @@ if [ $? -ne 0 ]; then
 fi
 print_success "PyGObject (GTK) encontrado."
 
+# Verificar gi
+
+python3 -c "from gi.repository import WebKit2" 2>/dev/null
+if [ $? -ne 0 ]; then
+   print_error "WebKit2 no encontrado. Instale gir1.2-webkit2-4.1"
+   exit 1
+fi
+
+print_success "WebKit2 encontrado."
 
 # Preparar directorios
 
@@ -76,6 +85,15 @@ else
     print_error "Directorio deepseek no encontrado"
     exit 1
 fi
+
+# Instalar el icono
+
+if [ -f "$ICON_SOURCE" ]; then
+       cp "$ICON_SOURCE" "$INSTALL_SHARE/deepseek-icon.png"
+       print_success "Icono instalado."
+   else
+       print_warning "Icono no encontrado en $ICON_SOURCE. El acceso directo no tendrá icono."
+   fi
 
 # Crear script de lanzamiento en ~/.local/bin/deepseek-gtk
 print_status "Creando ejecutable..."
