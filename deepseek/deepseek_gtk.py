@@ -132,5 +132,5 @@ class DeepSeekClient(Gtk.Window):
         )
         dialog.run()
         dialog.destroy()
-        GLib.timeout_add_seconds(10, self.webview.reload)
+        GLib.timeout_add_seconds(10, lambda: self.webview.reload())
         return True
