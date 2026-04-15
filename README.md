@@ -103,7 +103,7 @@ This project is licensed under the **GNU Affreno General Public License v3.0** ‚
 
 ## üôè Acknowledgements
 
-- Inspired by [Python WhatsApp GTK](https://github.com/laurivaldantas/python-whatsapp-gtk) by Laurival Dantas.
+- Inspired by [Python WhatsApp GTK](https://github.com/lourivaldantas/python-whatsapp-gtk) by Lourival Dantas.
 - Built with [PyGObject](https://pygobject.gnome.org/) and [WebKitGTK](https://webkitgtk.org/).
 - Thanks to **DeepSeek** for the amazing AI model and chat service.
 
